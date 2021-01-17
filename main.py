@@ -139,7 +139,7 @@ while True:
         sprites.add(cone)
     if pygame.sprite.spritecollide(
             bear, cones, True, pygame.sprite.collide_circle_ratio(0.75)):
-        if bear.rect.right < SIZE_WINDOW[0]:
+        if bear.rect.right < SIZE_WINDOW[0] + 10:
             life -= 1
         if life < 1:
             block = True
