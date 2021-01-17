@@ -65,7 +65,8 @@ class Obstacles(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x, SIZE_WINDOW[1] // 1.5 - 10))
 
     def update(self):
-        self.rect.x -= 2  # random.randint(2, 3)
+        if bear.rect.right < SIZE_WINDOW[0] or self.rect.left < SIZE_WINDOW[0]:
+            self.rect.x -= 2
         if self.rect.right < 0:
             self.rect.left = SIZE_WINDOW[0] * random.randint(2, 3)
             points[0] += 1
@@ -111,6 +112,7 @@ for i in range(3):
     cone = Obstacles(SIZE_WINDOW[0] + i * SIZE_WINDOW[0] // 3)
     cones.add(cone)
     sprites.add(cone)
+len_cones = len(cones)
 sprites.add(cloud, bear, text1, text2)  # показать
 # sprites.remove(bear)  # спрятать
 
@@ -133,16 +135,17 @@ while True:
         screen, GREEN,
         (0, SIZE_WINDOW[1] // 1.5, SIZE_WINDOW[0], SIZE_WINDOW[1] // 3))
 
-    if len(cones) < 3:
-        cone = Obstacles(SIZE_WINDOW[0] * random.randint(2, 3))
-        cones.add(cone)
-        sprites.add(cone)
-    if pygame.sprite.spritecollide(
-            bear, cones, True, pygame.sprite.collide_circle_ratio(0.75)):
-        if bear.rect.right < SIZE_WINDOW[0] + 10:
+    if bear.rect.right < SIZE_WINDOW[0]:
+        hit = pygame.sprite.spritecollide(
+            bear, cones, True, pygame.sprite.collide_circle_ratio(0.75))
+        for _ in hit:
             life -= 1
+            cone = Obstacles(SIZE_WINDOW[0] * random.randint(2, 3))
+            cones.add(cone)
+            sprites.add(cone)
         if life < 1:
             block = True
+            life = 0
     text1.image = font.render(f'life: {life}', True, WHITE)
     text2.image = font.render(f'points: {points[0]}', True, WHITE)
     # гравитация
