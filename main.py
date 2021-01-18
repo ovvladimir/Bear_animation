@@ -80,14 +80,14 @@ class Text(pygame.sprite.Sprite):
 
 
 class Clouds(pygame.sprite.Sprite):
-    def __init__(self, x):
+    def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.images = images_cloud
         self.index = 1
         self.range = len(self.images)
         self.image = self.images[self.index]
         self.h = self.image.get_height()
-        self.rect = self.image.get_rect(center=(x // 2, self.h))
+        self.rect = self.image.get_rect(center=(WIDTH // 2, self.h))
         self.speed = random.randint(2, 3)
 
     def update(self):
@@ -103,7 +103,7 @@ class Clouds(pygame.sprite.Sprite):
 
 
 bear = AnimatedSprite()
-cloud = Clouds(WIDTH)
+cloud = Clouds()
 text1 = Text(font.render(f'life: {life}', True, WHITE), 10)
 text2 = Text(font.render(f'points: {points[0]}', True, WHITE), 30)
 sprites = pygame.sprite.Group()
