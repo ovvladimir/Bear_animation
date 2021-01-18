@@ -15,7 +15,6 @@ NAVY = pygame.Color('navy')
 GREEN = (0, 128, 0)
 WHITE = (255, 255, 255)
 alpha = 255
-vel = 0
 life = 10
 points = [0]
 block = False
@@ -42,6 +41,16 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.range = len(self.images)
         self.image = self.images[self.index]
         self.rect = self.image.get_rect(center=(0, HEIGHT // 2))
+        self.vel = 0
+
+    def gravity(self):
+        # гравитация
+        self.vel += 1
+        self.rect.y += self.vel
+        while self.rect.colliderect((earth[0], earth[1] + 10, earth[2], earth[3])):
+            self.vel = 0
+            self.rect.y -= 1
+        # print(earth)
 
     def update(self):
         self.rect.x += 1
@@ -49,6 +58,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.rect.right = 0
         if self.rect.bottom < HEIGHT // 1.5 + 5:
             self.rect.x += 10
+        self.gravity()
         self.index += 0.1
         self.image = self.images[int(self.index % self.range)]
         # print(int(self.index % self.range))
@@ -70,6 +80,7 @@ class Obstacles(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.rect.left = WIDTH * random.randint(2, 3)
             points[0] += 1
+            text2.image = font.render(f'points: {points[0]}', True, WHITE)
 
 
 class Text(pygame.sprite.Sprite):
@@ -128,7 +139,7 @@ while True:
             elif e.key == pygame.K_SPACE \
                     and bear.rect.bottom > HEIGHT // 1.5 + 5 \
                     and not block:
-                vel = -20
+                bear.vel = -20
 
     screen.fill(NAVY)
     earth = pygame.draw.rect(
@@ -145,15 +156,7 @@ while True:
         if life < 1:
             block = True
             life = 0
-    text1.image = font.render(f'life: {life}', True, WHITE)
-    text2.image = font.render(f'points: {points[0]}', True, WHITE)
-    # гравитация
-    vel += 1
-    bear.rect.y += vel
-    while bear.rect.colliderect((earth[0], earth[1] + 10, earth[2], earth[3])):
-        vel = 0
-        bear.rect.y -= 1
-    # print(earth)
+        text1.image = font.render(f'life: {life}', True, WHITE)
 
     if not block:
         sprites.update()
