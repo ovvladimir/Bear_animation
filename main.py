@@ -5,11 +5,11 @@ import pygame
 
 pygame.init()
 
-SIZE_WINDOW = 1200, 600
+WIDTH, HEIGHT = 1200, 600
 FPS = 60
 clock = pygame.time.Clock()
 pygame.display.set_caption('BEAR')
-screen = pygame.display.set_mode(SIZE_WINDOW)
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 font = pygame.font.Font(None, 30)
 NAVY = pygame.Color('navy')
 GREEN = (0, 128, 0)
@@ -41,13 +41,13 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.index = 0  # первое изображение
         self.range = len(self.images)
         self.image = self.images[self.index]
-        self.rect = self.image.get_rect(center=(0, SIZE_WINDOW[1] // 2))
+        self.rect = self.image.get_rect(center=(0, HEIGHT // 2))
 
     def update(self):
         self.rect.x += 1
-        if self.rect.left > SIZE_WINDOW[0]:
+        if self.rect.left > WIDTH:
             self.rect.right = 0
-        if self.rect.bottom < SIZE_WINDOW[1] // 1.5 + 5:
+        if self.rect.bottom < HEIGHT // 1.5 + 5:
             self.rect.x += 10
         self.index += 0.1
         self.image = self.images[int(self.index % self.range)]
@@ -62,13 +62,13 @@ class Obstacles(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join(dirname, 'cone.png'))
         self.size = self.image.get_width() // 2, self.image.get_height() // 2
         self.image = pygame.transform.scale(self.image, self.size)
-        self.rect = self.image.get_rect(center=(x, SIZE_WINDOW[1] // 1.5 - 10))
+        self.rect = self.image.get_rect(center=(x, HEIGHT // 1.5 - 10))
 
     def update(self):
-        if bear.rect.right < SIZE_WINDOW[0] or self.rect.left < SIZE_WINDOW[0]:
+        if bear.rect.right < WIDTH or self.rect.left < WIDTH:
             self.rect.x -= 2
         if self.rect.right < 0:
-            self.rect.left = SIZE_WINDOW[0] * random.randint(2, 3)
+            self.rect.left = WIDTH * random.randint(2, 3)
             points[0] += 1
 
 
@@ -93,8 +93,8 @@ class Clouds(pygame.sprite.Sprite):
     def update(self):
         self.rect.x -= self.speed
         if self.rect.right < 0:
-            self.rect.left = SIZE_WINDOW[0]
-            self.rect.y = random.randint(self.h, SIZE_WINDOW[1] // 3)
+            self.rect.left = WIDTH
+            self.rect.y = random.randint(self.h, HEIGHT // 3)
             self.index += 1
             if self.index >= self.range:
                 self.index = 0
@@ -103,13 +103,13 @@ class Clouds(pygame.sprite.Sprite):
 
 
 bear = AnimatedSprite()
-cloud = Clouds(SIZE_WINDOW[0])
+cloud = Clouds(WIDTH)
 text1 = Text(font.render(f'life: {life}', True, WHITE), 10)
 text2 = Text(font.render(f'points: {points[0]}', True, WHITE), 30)
 sprites = pygame.sprite.Group()
 cones = pygame.sprite.Group()
 for i in range(3):
-    cone = Obstacles(SIZE_WINDOW[0] + i * SIZE_WINDOW[0] // 3)
+    cone = Obstacles(WIDTH + i * WIDTH // 3)
     cones.add(cone)
     sprites.add(cone)
 len_cones = len(cones)
@@ -126,21 +126,20 @@ while True:
             elif e.key == pygame.K_DOWN:
                 alpha -= 25 if alpha > 5 else 5 if alpha > 0 else 0
             elif e.key == pygame.K_SPACE \
-                    and bear.rect.bottom > SIZE_WINDOW[1] // 1.5 + 5 \
+                    and bear.rect.bottom > HEIGHT // 1.5 + 5 \
                     and not block:
                 vel = -20
 
     screen.fill(NAVY)
     earth = pygame.draw.rect(
-        screen, GREEN,
-        (0, SIZE_WINDOW[1] // 1.5, SIZE_WINDOW[0], SIZE_WINDOW[1] // 3))
+        screen, GREEN, (0, HEIGHT // 1.5, WIDTH, HEIGHT // 3))
 
-    if bear.rect.right < SIZE_WINDOW[0]:
+    if bear.rect.right < WIDTH:
         hit = pygame.sprite.spritecollide(
             bear, cones, True, pygame.sprite.collide_circle_ratio(0.75))
         for _ in hit:
             life -= 1
-            cone = Obstacles(SIZE_WINDOW[0] * random.randint(2, 3))
+            cone = Obstacles(WIDTH * random.randint(2, 3))
             cones.add(cone)
             sprites.add(cone)
         if life < 1:
