@@ -21,7 +21,7 @@ block = False
 
 dirname = os.path.dirname(__file__)
 images_bear = []
-path = os.path.join(dirname, 'Bear')
+path = os.path.join(dirname, 'Bear')  # Unicorn
 for file_name in os.listdir(path):
     image = pygame.image.load(os.path.join(path, file_name))
     images_bear.append(image)
@@ -64,6 +64,22 @@ class AnimatedSprite(pygame.sprite.Sprite):
         # print(int(self.index % self.range))
         self.rect[2:] = self.image.get_rect()[2:]
         self.image.set_alpha(alpha)
+
+        if pygame.sprite.collide_rect(self, cloud):
+            crown.rect.bottom = self.rect.top
+            crown.rect.left = self.rect.centerx + 20
+            sprites.add(crown)
+        else:
+            sprites.remove(crown)
+
+
+class Crown(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(os.path.join(dirname, 'crown.png'))
+        self.image = pygame.transform.scale(self.image, (
+            self.image.get_width() // 8, self.image.get_height() // 8))
+        self.rect = self.image.get_rect()
 
 
 class Obstacles(pygame.sprite.Sprite):
@@ -111,10 +127,12 @@ class Clouds(pygame.sprite.Sprite):
                 self.index = 0
             self.speed = random.randint(2, 3)
         self.image = self.images[self.index]
+        self.rect[2:] = self.image.get_rect()[2:]
 
 
 bear = AnimatedSprite()
 cloud = Clouds()
+crown = Crown()
 text1 = Text(font.render(f'life: {life}', True, WHITE), 10)
 text2 = Text(font.render(f'points: {points[0]}', True, WHITE), 30)
 sprites = pygame.sprite.Group()
