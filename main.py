@@ -15,9 +15,7 @@ NAVY = pygame.Color('navy')
 GREEN = (0, 128, 0)
 WHITE = (255, 255, 255)
 alpha = 255
-life = 10
-points = [0]
-block = False
+game = {'points': 0, 'life': 10, 'block': False}
 
 dirname = os.path.dirname(__file__)
 images_bear = []
@@ -42,6 +40,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.rect = self.image.get_rect(center=(0, HEIGHT // 2))
         self.vel = 0
+        self.radius = self.rect.w // 2.5
 
     def gravity(self):
         # гравитация
@@ -94,9 +93,18 @@ class Obstacles(pygame.sprite.Sprite):
         if bear.rect.right < WIDTH or self.rect.left < WIDTH:
             self.rect.x -= 2
         if self.rect.right < 0:
-            self.rect.left = WIDTH * random.randint(2, 3)
-            points[0] += 1
-            text2.image = font.render(f'points: {points[0]}', True, WHITE)
+            self.rect.x = WIDTH * random.randint(2, 3)
+            game['points'] += 1
+            text2.image = font.render(f"points: {game['points']}", True, WHITE)
+        if bear.rect.right < WIDTH or \
+                (self.rect.left < WIDTH and bear.rect.right > WIDTH and bear.rect.left < WIDTH):
+            if pygame.sprite.collide_circle(bear, self):
+                self.rect.x = WIDTH * random.randint(2, 3)
+                game['life'] -= 1
+                if game['life'] < 1:
+                    game['block'] = True
+                    game['life'] = 0
+                text1.image = font.render(f"life: {game['life']}", True, WHITE)
 
 
 class Text(pygame.sprite.Sprite):
@@ -133,15 +141,12 @@ class Clouds(pygame.sprite.Sprite):
 bear = AnimatedSprite()
 cloud = Clouds()
 crown = Crown()
-text1 = Text(font.render(f'life: {life}', True, WHITE), 10)
-text2 = Text(font.render(f'points: {points[0]}', True, WHITE), 30)
+text1 = Text(font.render(f"life: {game['life']}", True, WHITE), 10)
+text2 = Text(font.render(f"points: {game['points']}", True, WHITE), 30)
 sprites = pygame.sprite.Group()
-cones = pygame.sprite.Group()
 for i in range(3):
     cone = Obstacles(WIDTH + i * WIDTH // 3)
-    cones.add(cone)
     sprites.add(cone)
-len_cones = len(cones)
 sprites.add(cloud, bear, text1, text2)  # показать
 # sprites.remove(bear)  # спрятать
 
@@ -156,27 +161,14 @@ while True:
                 alpha -= 25 if alpha > 5 else 5 if alpha > 0 else 0
             elif e.key == pygame.K_SPACE \
                     and bear.rect.bottom > HEIGHT // 1.5 + 5 \
-                    and not block:
+                    and not game['block']:
                 bear.vel = -20
 
     screen.fill(NAVY)
     earth = pygame.draw.rect(
         screen, GREEN, (0, HEIGHT // 1.5, WIDTH, HEIGHT // 3))
 
-    if bear.rect.right < WIDTH:
-        hit = pygame.sprite.spritecollide(
-            bear, cones, True, pygame.sprite.collide_circle_ratio(0.75))
-        for _ in hit:
-            life -= 1
-            cone = Obstacles(WIDTH * random.randint(2, 3))
-            cones.add(cone)
-            sprites.add(cone)
-        if life < 1:
-            block = True
-            life = 0
-        text1.image = font.render(f'life: {life}', True, WHITE)
-
-    if not block:
+    if not game['block']:
         sprites.update()
     sprites.draw(screen)
     pygame.display.update()
