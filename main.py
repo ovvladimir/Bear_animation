@@ -17,15 +17,15 @@ WHITE = (255, 255, 255)
 alpha = 255
 game = {'points': 0, 'life': 10, 'block': False}
 
-dirname = os.path.dirname(__file__)
+directory = os.path.dirname(__file__)
 images_bear = []
-path = os.path.join(dirname, 'Bear')  # Unicorn
+path = os.path.join(directory, 'Bear')  # Unicorn
 for file_name in os.listdir(path):
     image = pygame.image.load(os.path.join(path, file_name))
     images_bear.append(image)
 # print(images_bear)
 images_cloud = []
-path2 = os.path.join(dirname, 'Cloud')
+path2 = os.path.join(directory, 'Cloud')
 for file_name in os.listdir(path2):
     image = pygame.image.load(os.path.join(path2, file_name))
     images_cloud.append(image)
@@ -40,7 +40,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.rect = self.image.get_rect(center=(0, HEIGHT // 2))
         self.vel = 0
-        self.radius = self.rect.w // 2.5
+        self.radius = self.rect.w // 2.5  # для sprite.collide_circle
 
     def gravity(self):
         # гравитация
@@ -75,7 +75,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
 class Crown(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(dirname, 'crown.png'))
+        self.image = pygame.image.load(os.path.join(directory, 'crown.png'))
         self.image = pygame.transform.scale(self.image, (
             self.image.get_width() // 8, self.image.get_height() // 8))
         self.rect = self.image.get_rect()
@@ -84,7 +84,7 @@ class Crown(pygame.sprite.Sprite):
 class Obstacles(pygame.sprite.Sprite):
     def __init__(self, x):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(os.path.join(dirname, 'cone.png'))
+        self.image = pygame.image.load(os.path.join(directory, 'cone.png'))
         self.size = self.image.get_width() // 2, self.image.get_height() // 2
         self.image = pygame.transform.scale(self.image, self.size)
         self.rect = self.image.get_rect(center=(x, HEIGHT // 1.5 - 10))
@@ -97,7 +97,7 @@ class Obstacles(pygame.sprite.Sprite):
             game['points'] += 1
             text2.image = font.render(f"points: {game['points']}", True, WHITE)
         if bear.rect.right < WIDTH or \
-                (self.rect.left < WIDTH and bear.rect.right > WIDTH and bear.rect.left < WIDTH):
+                (self.rect.left < WIDTH < bear.rect.right and bear.rect.left < WIDTH):
             if pygame.sprite.collide_circle(bear, self):
                 self.rect.x = WIDTH * random.randint(2, 3)
                 game['life'] -= 1
@@ -166,7 +166,7 @@ while True:
 
     screen.fill(NAVY)
     earth = pygame.draw.rect(
-        screen, GREEN, (0, HEIGHT // 1.5, WIDTH, HEIGHT // 3))
+        screen, GREEN, (0, int(HEIGHT // 1.5), WIDTH, HEIGHT // 3))
 
     if not game['block']:
         sprites.update()
