@@ -97,7 +97,7 @@ class Obstacles(pygame.sprite.Sprite):
             game['points'] += 1
             text2.image = font.render(f"points: {game['points']}", True, WHITE)
         if bear.rect.right < WIDTH or \
-                (self.rect.left < WIDTH < bear.rect.right and bear.rect.left < WIDTH):
+                (self.rect.left < WIDTH and bear.rect.right > WIDTH > bear.rect.left):
             if pygame.sprite.collide_circle(bear, self):
                 self.rect.x = WIDTH * random.randint(2, 3)
                 game['life'] -= 1
